@@ -1,5 +1,33 @@
+# Python
 .venv/
-.env
 __pycache__/
-*.pyc
+*.py[cod]
+
+# Environment
+.env
+.env.*
+
+# Raw external FPL data
 data/raw/
+
+# Generated training datasets
+data/historical/*_v2.csv
+data/historical/*_v3.csv
+data/historical/2024-25_merged_gw.csv
+
+# Generated comparisons / validation outputs
+data/historical/*comparison.csv
+data/historical/*validation_predictions.csv
+
+# Generated predictions
+data/predictions/
+predictions_*.csv
+
+# Trained model artifacts
+models/**/*.joblib
+
+# Local/editor files
+.vscode/
+.idea/
+*.swp
+.DS_Store
