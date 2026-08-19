@@ -20,10 +20,11 @@ class Team(models.Model):
 
 class Player(models.Model):
     """
-    FPL player.
+    FPL player and current season statistics.
     """
 
     id = models.IntegerField(primary_key=True)
+
     team = models.ForeignKey(
         Team,
         on_delete=models.CASCADE,
@@ -34,13 +35,56 @@ class Player(models.Model):
     second_name = models.CharField(max_length=100)
     web_name = models.CharField(max_length=100)
 
+    # FPL position:
+    # 1 = Goalkeeper
+    # 2 = Defender
+    # 3 = Midfielder
+    # 4 = Forward
     position = models.IntegerField()
 
+    # FPL price is stored in tenths of a million.
+    # Example: 155 = £15.5m
     price = models.IntegerField()
 
     status = models.CharField(max_length=1)
 
     ownership = models.FloatField(default=0)
+
+    # ---------------------------------------------------------------
+    # Performance statistics
+    # ---------------------------------------------------------------
+
+    total_points = models.IntegerField(default=0)
+
+    points_per_game = models.FloatField(default=0)
+
+    form = models.FloatField(default=0)
+
+    minutes = models.IntegerField(default=0)
+
+    starts = models.IntegerField(default=0)
+
+    goals = models.IntegerField(default=0)
+
+    assists = models.IntegerField(default=0)
+
+    clean_sheets = models.IntegerField(default=0)
+
+    bonus = models.IntegerField(default=0)
+
+    bps = models.IntegerField(default=0)
+
+    # ---------------------------------------------------------------
+    # Expected statistics
+    # ---------------------------------------------------------------
+
+    expected_goals = models.FloatField(default=0)
+
+    expected_assists = models.FloatField(default=0)
+
+    expected_goal_involvements = models.FloatField(default=0)
+
+    expected_goals_conceded = models.FloatField(default=0)
 
     class Meta:
         ordering = ["web_name"]
@@ -118,6 +162,9 @@ class Fixture(models.Model):
 
     finished = models.BooleanField(default=False)
 
+    class Meta:
+        ordering = ["kickoff_time"]
+
     def __str__(self):
         return f"{self.home_team} vs {self.away_team}"
 
@@ -134,22 +181,29 @@ class PlayerSeasonStats(models.Model):
     )
 
     minutes = models.IntegerField(default=0)
+
     starts = models.IntegerField(default=0)
 
     goals = models.IntegerField(default=0)
+
     assists = models.IntegerField(default=0)
 
     clean_sheets = models.IntegerField(default=0)
 
     bonus = models.IntegerField(default=0)
+
     bps = models.IntegerField(default=0)
 
     expected_goals = models.FloatField(default=0)
+
     expected_assists = models.FloatField(default=0)
 
     expected_goal_involvements = models.FloatField(default=0)
 
     expected_goals_conceded = models.FloatField(default=0)
+
+    class Meta:
+        ordering = ["-expected_goal_involvements"]
 
     def __str__(self):
         return f"{self.player.web_name} Season Stats"
@@ -159,8 +213,8 @@ class PlayerGameweekStats(models.Model):
     """
     Player performance in an individual gameweek.
 
-    This table will become extremely important for the AI model
-    because it gives us historical training data.
+    This becomes the historical dataset used for model training
+    and backtesting.
     """
 
     player = models.ForeignKey(
@@ -178,14 +232,17 @@ class PlayerGameweekStats(models.Model):
     minutes = models.IntegerField(default=0)
 
     goals = models.IntegerField(default=0)
+
     assists = models.IntegerField(default=0)
 
     clean_sheets = models.IntegerField(default=0)
 
     bonus = models.IntegerField(default=0)
+
     bps = models.IntegerField(default=0)
 
     expected_goals = models.FloatField(default=0)
+
     expected_assists = models.FloatField(default=0)
 
     expected_goal_involvements = models.FloatField(default=0)
